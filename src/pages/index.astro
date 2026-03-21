@@ -7,18 +7,56 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
 <!doctype html>
 <html lang="en">
-    <head>
-        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-    </head>
-    <body>
-        <Header />
-        <main>
-            <h1>Hello, welcome to my website!</h1>
-            <p>
-                Thanks for stopping by! This website is still under construction,
-                please check back later for updates.
-            </p>
-        </main>
-        <Footer />
-    </body>
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				max-width: 640px;
+			}
+			.intro {
+				padding: 2rem 0 3rem;
+			}
+			.intro h1 {
+				margin-bottom: 1rem;
+			}
+			.intro p {
+				color: rgb(var(--gray));
+				font-size: 1.1em;
+				margin-bottom: 1.5rem;
+			}
+			.links {
+				display: flex;
+				gap: 1.5rem;
+				margin-top: 2rem;
+			}
+			.links a {
+				text-decoration: none;
+				color: rgb(var(--black));
+				font-weight: var(--font-weight-semibold);
+				border-bottom: 2px solid var(--accent);
+				padding-bottom: 2px;
+				transition: color 0.15s ease;
+			}
+			.links a:hover {
+				color: var(--accent);
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="intro">
+				<h1>Michael Letterio</h1>
+				<p>
+					Photographer and writer based in Boston, MA.
+				</p>
+				<div class="links">
+					<a href="/gallery/">Gallery →</a>
+					<a href="/blog/">Writing →</a>
+					<a href="/about/">About</a>
+				</div>
+			</section>
+		</main>
+		<Footer />
+	</body>
 </html>

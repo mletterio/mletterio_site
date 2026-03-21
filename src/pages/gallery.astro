@@ -1,37 +1,106 @@
 ---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 
-const albums = await getCollection("albums");
+const photos = (await getCollection('photos')).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
 ---
 
-<div class="p-8">
-    <h1 class="text-5xl font-bold text-center my-8">Gallery</h1>
-    <div class="mx-auto container max-w-screen-sm grid grid-cols-2 gap-8">
-      {
-        albums.map((item) => (
-          <a
-            href={`/gallery/${item.id}`}
-            class="group transition-all mb-4 block"
-          >
-            <Image
-              src={item.data.cover}
-              alt={item.data.title}
-              format="avif"
-              width={720}
-              quality="mid"
-              class:list={[
-                "rounded-lg transition-all",
-                "group-hover:shadow-lg group-hover:opacity-90"
-              ]}
-            />
-            <div class="mt-4 text-center text-neutral-700">
-              <strong class="font-normal">{item.data.title}</strong>
-              <p class="text-xs">{item.data.description}</p>
-            </div>
-          </a>
-        ))
-      }
-    </div>
-  </div>
-  
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Gallery — ${SITE_TITLE}`} description="Photography by Michael Letterio." />
+		<style>
+			main {
+				max-width: 1100px;
+				width: calc(100% - 2em);
+			}
+			h1 {
+				margin-bottom: 2rem;
+			}
+			.photo-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+				gap: 1.5rem;
+			}
+			.photo-item {
+				display: block;
+				text-decoration: none;
+				color: inherit;
+			}
+			.photo-item img {
+				width: 100%;
+				height: 240px;
+				object-fit: cover;
+				border-radius: 8px;
+				display: block;
+				transition: opacity 0.2s ease;
+			}
+			.photo-item:hover img {
+				opacity: 0.88;
+			}
+			.photo-meta {
+				margin-top: 0.5rem;
+				font-size: 0.85em;
+				color: rgb(var(--gray));
+			}
+			.photo-meta .photo-title {
+				display: block;
+				color: rgb(var(--gray-dark));
+				font-weight: var(--font-weight-semibold);
+			}
+			.empty-state {
+				color: rgb(var(--gray));
+				padding: 3rem 0;
+			}
+			@media (max-width: 720px) {
+				.photo-grid {
+					grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+					gap: 1rem;
+				}
+				.photo-item img {
+					height: 200px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Gallery</h1>
+			{photos.length === 0 ? (
+				<p class="empty-state">Photos coming soon.</p>
+			) : (
+				<div class="photo-grid">
+					{photos.map((photo) => (
+						<a
+							href={photo.data.image.src}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="photo-item"
+						>
+							<Image
+								src={photo.data.image}
+								alt={photo.data.title}
+								width={600}
+								height={400}
+								format="webp"
+								quality={80}
+							/>
+							<div class="photo-meta">
+								<span class="photo-title">{photo.data.title}</span>
+								{photo.data.location && <span>{photo.data.location}</span>}
+							</div>
+						</a>
+					))}
+				</div>
+			)}
+		</main>
+		<Footer />
+	</body>
+</html>

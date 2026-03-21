@@ -6,9 +6,13 @@ import { SITE_TITLE } from '../consts';
 <header>
 	<nav>
 		<h2><a href="/">{SITE_TITLE}</a></h2>
-		<div class="internal-links">
-			<HeaderLink href="https://www.linkedin.com/in/michael-letterio">LinkedIn →</HeaderLink>
-			<HeaderLink href="https://github.com/mletterio">GitHub →</HeaderLink>
+		<div class="nav-links">
+			<HeaderLink href="/gallery/">Gallery</HeaderLink>
+			<HeaderLink href="/blog/">Writing</HeaderLink>
+			<HeaderLink href="/about/">About</HeaderLink>
+			<span class="separator"></span>
+			<HeaderLink href="https://www.linkedin.com/in/michael-letterio" target="_blank" rel="noopener noreferrer">LinkedIn →</HeaderLink>
+			<HeaderLink href="https://github.com/mletterio" target="_blank" rel="noopener noreferrer">GitHub →</HeaderLink>
 		</div>
 	</nav>
 </header>
@@ -36,8 +40,9 @@ import { SITE_TITLE } from '../consts';
 		padding: 0.25em;
 	}
 
-	.internal-links {
+	.nav-links {
 		display: flex;
+		align-items: baseline;
 		gap: 0.85em;
 		font-size: 1.4em;
 		border-top: 2px solid var(--gray-dark);
@@ -47,20 +52,24 @@ import { SITE_TITLE } from '../consts';
 		box-sizing: border-box;
 	}
 
+	.separator {
+		flex: 1;
+	}
+
 	nav a {
 		color: var(--black);
 		text-decoration: none;
 	}
 
 	nav a.active {
-		text-decoration: none;
+		text-decoration: underline;
+		text-underline-offset: 4px;
 	}
 
 	/* Mobile adjustments */
 	@media (max-width: 870px) {
-		
 		header {
-			margin: 0.75em
+			margin: 0.75em;
 		}
 
 		h2 {
@@ -73,10 +82,15 @@ import { SITE_TITLE } from '../consts';
 			gap: 0.25em;
 		}
 
-		.internal-links {
+		.nav-links {
 			flex-direction: row;
+			flex-wrap: wrap;
 			gap: 0.75em;
 			width: 100%;
+		}
+
+		.separator {
+			display: none;
 		}
 
 		nav a {

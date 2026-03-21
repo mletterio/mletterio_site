@@ -1,68 +1,101 @@
-# Astro Starter Kit: Blog
+# mletterio.github.io
+
+Personal site for Michael Letterio — a blog and photography gallery built with [Astro](https://astro.build).
+
+**Live site:** https://mletterio.github.io
+
+---
+
+## Stack
+
+- [Astro](https://astro.build) — static site generator
+- TypeScript
+- Custom CSS (Bear Blog-inspired, no frameworks)
+- GitHub Actions — auto-deploys `main` to GitHub Pages
+
+---
+
+## Project structure
+
+```
+src/
+├── assets/
+│   └── photos/          # Gallery images (processed by Astro's image pipeline)
+├── components/
+│   ├── BaseHead.astro   # Global <head> — SEO, OG tags, fonts
+│   ├── Footer.astro
+│   ├── FormattedDate.astro
+│   ├── Header.astro     # Site navigation
+│   └── HeaderLink.astro
+├── content/
+│   ├── blog/            # Blog posts (.md or .mdx)
+│   ├── photos/          # Photo metadata (.json) for the gallery
+│   └── config.ts        # Content collection schemas
+├── layouts/
+│   └── BlogPost.astro   # Layout for individual blog posts
+├── pages/
+│   ├── index.astro      # Homepage
+│   ├── about.astro      # About page
+│   ├── gallery.astro    # Photo gallery
+│   ├── rss.xml.js       # RSS feed
+│   └── blog/
+│       ├── index.astro  # Blog post listing
+│       └── [...slug].astro
+└── styles/
+    └── global.css
+```
+
+---
+
+## Adding a blog post
+
+Create a new `.md` file in `src/content/blog/`:
+
+```markdown
+---
+title: 'Post title'
+description: 'A short summary shown in the post list.'
+pubDate: '2026-01-15'
+---
+
+Post content goes here.
+```
+
+The post will automatically appear in the blog listing and RSS feed.
+
+---
+
+## Adding a photo to the gallery
+
+1. Add the image file to `src/assets/photos/` (JPEG or PNG recommended).
+
+2. Create a matching `.json` file in `src/content/photos/`:
+
+```json
+{
+  "title": "Photo title",
+  "date": "2026-01-15",
+  "location": "Boston, MA",
+  "description": "Optional caption.",
+  "image": "../../assets/photos/your-photo.jpg"
+}
+```
+
+Photos are sorted newest-first and displayed in a responsive grid. Clicking a photo opens the full-size version in a new tab.
+
+---
+
+## Local development
 
 ```sh
-npm create astro@latest -- --template blog
+npm install       # Install dependencies
+npm run dev       # Start dev server at localhost:4321
+npm run build     # Build for production
+npm run preview   # Preview production build locally
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/blog)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/blog)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/blog/devcontainer.json)
+---
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Test plan
 
-![blog](https://github.com/withastro/astro/assets/2244813/ff10799f-a816-4703-b967-c78997e8323d)
-
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
-├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+See [TEST_PLAN.md](./TEST_PLAN.md) for the full test checklist.

@@ -14,97 +14,73 @@ const posts = (await getCollection('blog')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={`Writing — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				max-width: 640px;
 			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
+			h1 {
+				margin-bottom: 2rem;
+			}
+			.post-list {
+				list-style: none;
 				margin: 0;
 				padding: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 2rem;
 			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
+			.post-list li a {
 				display: block;
+				text-decoration: none;
+				color: inherit;
 			}
-			.title {
-				margin: 0;
+			.post-title {
+				font-size: 1.25em;
+				font-weight: var(--font-weight-semibold);
 				color: rgb(var(--black));
-				line-height: 1;
+				margin: 0 0 0.25rem;
+				transition: color 0.15s ease;
 			}
-			.date {
-				margin: 0;
+			.post-list li a:hover .post-title {
+				color: var(--accent);
+			}
+			.post-date {
+				font-size: 0.85em;
 				color: rgb(var(--gray));
+				margin: 0;
 			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
+			.post-description {
+				font-size: 0.95em;
+				color: rgb(var(--gray));
+				margin: 0.35rem 0 0;
 			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
+			.empty-state {
+				color: rgb(var(--gray));
 			}
 		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.slug}/`}>
-									<img width={720} height={360} src={post.data.heroImage} alt="" />
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
+			<h1>Writing</h1>
+			{posts.length === 0 ? (
+				<p class="empty-state">Nothing published yet. Check back soon.</p>
+			) : (
+				<ul class="post-list">
+					{posts.map((post) => (
+						<li>
+							<a href={`/blog/${post.slug}/`}>
+								<p class="post-date"><FormattedDate date={post.data.pubDate} /></p>
+								<h2 class="post-title">{post.data.title}</h2>
+								{post.data.description && (
+									<p class="post-description">{post.data.description}</p>
+								)}
+							</a>
+						</li>
+					))}
 				</ul>
-			</section>
+			)}
 		</main>
 		<Footer />
 	</body>
