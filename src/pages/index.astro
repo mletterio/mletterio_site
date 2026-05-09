@@ -1,62 +1,101 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Hero from "../components/Hero.astro";
+import TrailLayer from "../components/TrailLayer.astro";
+import Section from "../components/Section.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				max-width: 640px;
-			}
-			.intro {
-				padding: 2rem 0 3rem;
-			}
-			.intro h1 {
-				margin-bottom: 1rem;
-			}
-			.intro p {
-				color: rgb(var(--gray));
-				font-size: 1.1em;
-				margin-bottom: 1.5rem;
-			}
-			.links {
-				display: flex;
-				gap: 1.5rem;
-				margin-top: 2rem;
-			}
-			.links a {
-				text-decoration: none;
-				color: rgb(var(--black));
-				font-weight: var(--font-weight-semibold);
-				border-bottom: 2px solid var(--accent);
-				padding-bottom: 2px;
-				transition: color 0.15s ease;
-			}
-			.links a:hover {
-				color: var(--accent);
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<section class="intro">
-				<h1>Michael Letterio</h1>
-				<p>
-					Photographer and writer based in Boston, MA.
-				</p>
-				<div class="links">
-					<a href="/gallery/">Gallery →</a>
-					<a href="/blog/">Writing →</a>
-					<a href="/about/">About</a>
-				</div>
-			</section>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    {/* Header and TrailLayer stay outside #smooth-wrapper because both use
+        position: fixed — and CSS transforms on a smoothed wrapper would
+        create a new containing block, breaking position: fixed. */}
+    <Header />
+    <TrailLayer />
+
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <main>
+          <Hero />
+
+          <Section
+            id="about"
+            label="01 / About"
+            heading="<em>Paying attention</em> to the world, on purpose."
+          >
+            <p class="section__body">
+              Congue sed mauris auctor commodo cum eros etiam; ante id. Placerat
+              blandit rhoncus scelerisque interdum a felis mauris curabitur cursus.
+              Vulputate curabitur montes at gravida facilisis dui facilisi sapien.
+            </p>
+          </Section>
+
+          <Section
+            id="professional"
+            class="section--professional"
+            label="02 / Professional"
+            heading="<em>Engineering</em> & craft, in parallel."
+          >
+            <p class="section__body">
+              Sollicitudin tempor nam enim ullamcorper phasellus natoque lacus eget
+              sit. Praesent etiam lobortis sagittis fringilla congue duis cras
+              platea at ornare? Dictumst sagittis nisl platea suscipit, quis
+              ullamcorper.
+            </p>
+            <div class="section__links">
+              <a
+                href="https://www.linkedin.com/in/michael-letterio"
+                target="_blank"
+                rel="noopener noreferrer">LinkedIn&nbsp;→</a
+              >
+              <a
+                href="https://github.com/mletterio"
+                target="_blank"
+                rel="noopener noreferrer">GitHub&nbsp;→</a
+              >
+            </div>
+          </Section>
+        </main>
+
+        <Footer />
+      </div>
+    </div>
+
+    <script>
+      import "../scripts/animations.ts";
+    </script>
+
+    <style>
+      main {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      :global(header) {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: transparent;
+        padding: 2em 0;
+        will-change: transform;
+      }
+
+      main,
+      :global(footer) {
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+  </body>
 </html>

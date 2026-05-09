@@ -1,0 +1,83 @@
+---
+type Props = {
+	id: string;
+	label: string;
+	heading: string;
+	class?: string;
+};
+
+const { id, label, heading, class: className } = Astro.props;
+---
+
+<section class:list={['section', className]} id={id}>
+	<p class="section__label">{label}</p>
+	<h2 class="section__heading" set:html={heading} />
+	<slot />
+</section>
+
+<style>
+	.section {
+		padding: var(--space-xl) var(--layout-px);
+		max-width: var(--layout-max);
+		margin: 0 auto;
+		box-sizing: border-box;
+	}
+
+	.section__label {
+		font-size: var(--type-eyebrow);
+		font-weight: 600;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: rgb(var(--black));
+		margin: 0 0 var(--space-md);
+		display: block;
+		clip-path: inset(0 0 0 0);
+	}
+
+	.section__heading {
+		font-size: var(--type-heading);
+		font-weight: 700;
+		line-height: var(--lh-snug);
+		letter-spacing: -0.015em;
+		margin: 0 0 var(--space-sm);
+		max-width: 22ch;
+	}
+
+	.section__heading :global(em) {
+		font-style: italic;
+		font-weight: 400;
+	}
+
+	:global(.section__body) {
+		font-size: var(--type-body);
+		line-height: var(--lh-body);
+		max-width: 52ch;
+		margin: 0 0 var(--space-xs);
+	}
+
+	:global(.section__links) {
+		display: flex;
+		gap: var(--space-sm);
+		margin-top: var(--space-md);
+	}
+
+	:global(.section__links a) {
+		text-decoration: none;
+		font-weight: 600;
+		border-bottom: 1px solid currentColor;
+		padding-bottom: 0.15em;
+		transition: transform 0.2s ease;
+	}
+
+	:global(.section__links a:hover) {
+		transform: translateX(3px);
+	}
+
+	@media (max-width: 640px) {
+		:global(.section__links a) {
+			min-height: 44px;
+			display: inline-flex;
+			align-items: center;
+		}
+	}
+</style>

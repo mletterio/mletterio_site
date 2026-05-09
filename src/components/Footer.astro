@@ -1,34 +1,168 @@
 ---
-const today = new Date();
 ---
 
-<footer>
-	&copy; <span id="year">{new Date().getFullYear()}</span> Michael Letterio. All rights reserved.<br>Boston, MA.
+<footer class="footer" data-footer>
+	<div class="footer__wordmark" aria-label="Michael Letterio">
+		<span class="footer__wordmark-text" data-footer-reveal="wordmark">letterio</span><span class="footer__wordmark-dot" data-footer-reveal="dot" aria-hidden="true">.</span>
+	</div>
+	<p class="footer__identity" data-footer-reveal="identity">
+		<span class="footer__identity-part">Photographer &amp; Software Engineer</span>
+		<span class="footer__identity-sep" aria-hidden="true">—</span>
+		<span class="footer__identity-part">Boston,&nbsp;Massachusetts</span>
+	</p>
+	<div class="footer__meta" data-footer-reveal="meta">
+		<span class="footer__copy">&copy; <span data-year>{new Date().getFullYear()}</span>&nbsp;&nbsp;Michael Letterio</span>
+		<nav class="footer__links" aria-label="Contact">
+			<a href="https://www.linkedin.com/in/michael-letterio" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+			<span aria-hidden="true">·</span>
+			<a href="https://github.com/mletterio" target="_blank" rel="noopener noreferrer">GitHub</a>
+			<span aria-hidden="true">·</span>
+			<a href="#top" data-anchor class="footer__top" aria-label="Back to top">↑&nbsp;Top</a>
+		</nav>
+	</div>
 </footer>
+
 <script>
-	const yearElem = document.getElementById('year');
-	if (yearElem) {
-		yearElem.textContent = new Date().getFullYear().toString();
-	}
+	const yearEl = document.querySelector<HTMLElement>('[data-year]');
+	if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
 </script>
+
 <style>
-	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray-dark));
-		text-align: center;
+	.footer {
+		padding: clamp(3.5rem, 10vh, 8rem) var(--layout-px) 1.75rem;
+		max-width: var(--layout-max);
+		margin: 0 auto;
+		box-sizing: border-box;
+		color: rgb(var(--black));
 	}
-	.social-links {
+
+	.footer__wordmark {
+		font-weight: var(--font-weight-semibold);
+		font-size: clamp(2.25rem, 6vw, 4.75rem);
+		line-height: 1;
+		letter-spacing: -0.03em;
+		margin: 0;
+		display: block;
+	}
+
+	.footer__wordmark-text {
+		display: inline-block;
+	}
+
+	.footer__wordmark-dot {
+		display: inline-block;
+		color: var(--accent);
+		transform-origin: 40% 80%;
+	}
+
+	.footer__identity {
+		font-weight: var(--font-weight-regular);
+		font-size: clamp(0.95rem, 1.1vw, 1rem);
+		line-height: 1.5;
+		letter-spacing: 0.005em;
+		color: var(--gray-dark);
+		margin: 1.5rem 0 0 0.08em;
+		max-width: 44ch;
+	}
+
+	.footer__identity-sep {
+		display: inline-block;
+		margin: 0 0.5em;
+		color: var(--accent);
+	}
+
+	.footer__meta {
 		display: flex;
-		justify-content: center;
-		gap: 1em;
-		margin-top: 1em;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem 2.5rem;
+		flex-wrap: wrap;
+		margin-top: clamp(3rem, 8vh, 6rem);
+		padding-top: 1.1rem;
+		border-top: 2px solid rgba(15, 18, 25, 0.32);
+		font-size: 0.78rem;
+		font-weight: var(--font-weight-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--gray-dark);
 	}
-	.social-links a {
+
+	.footer__links {
+		display: inline-flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 0.55em;
+	}
+
+	.footer__links a {
+		color: inherit;
 		text-decoration: none;
-		color: rgb(var(--gray));
+		transition: color 160ms ease;
+		display: inline-flex;
+		align-items: center;
+		white-space: nowrap;
 	}
-	.social-links a:hover {
-		color: rgb(var(--gray-dark));
+
+	.footer__identity-part {
+		white-space: nowrap;
+	}
+
+	.footer__links a:hover,
+	.footer__links a:focus-visible {
+		color: var(--accent);
+	}
+
+	.footer__links > span[aria-hidden] {
+		opacity: 0.4;
+	}
+
+	.footer__top {
+		transition:
+			transform 220ms ease,
+			color 160ms ease;
+	}
+
+	.footer__top:hover,
+	.footer__top:focus-visible {
+		transform: translateY(-2px);
+	}
+
+	@media (max-width: 640px) {
+		.footer {
+			padding-top: clamp(4rem, 10vh, 6rem);
+		}
+
+		.footer__wordmark {
+			letter-spacing: -0.035em;
+		}
+
+		.footer__identity {
+			display: flex;
+			flex-direction: column;
+			max-width: none;
+		}
+
+		.footer__identity-sep {
+			display: none;
+		}
+
+		.footer__meta {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.75rem;
+		}
+
+		.footer__links {
+			gap: 1.25rem;
+		}
+
+		.footer__links a {
+			min-height: 44px;
+			padding: 0.5em 0;
+		}
+
+		.footer__links > span[aria-hidden] {
+			display: none;
+		}
 	}
 </style>

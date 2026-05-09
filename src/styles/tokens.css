@@ -1,0 +1,46 @@
+/* mletterio.github.io — design tokens.
+   Single source of truth for color, type, spacing, rhythm, and layout. */
+
+:root {
+	/* ── Color ──────────────────────────────────────────────────────── */
+	--accent:      #2337ff;
+	--black:       15, 18, 25;       /* rgb triplet — wrap with rgb() */
+	--gray-light:  #f2f2f2;
+	--gray-dark:   #262626;
+
+	/* ── Typography ─────────────────────────────────────────────────── */
+	--font-family-sans: 'ALT Systema', sans-serif;
+
+	--font-weight-regular:  400;
+	--font-weight-semibold: 600;
+	--font-weight-black:    900;
+
+	--type-eyebrow: clamp(0.82rem, 0.9vw, 0.95rem);
+	--type-body:    clamp(1rem,    1.2vw, 1.125rem);
+	--type-lede:    clamp(1.15rem, 1.6vw, 1.5rem);
+	--type-heading: clamp(2rem,    4.2vw, 3.6rem);
+	--type-display: clamp(4rem,    11vw,  8.4rem);
+
+	--lh-tight: 1.1;
+	--lh-snug:  1.25;
+	--lh-body:  1.65;
+
+	/* ── Spacing rhythm — every vertical gap derives from --rhythm ──── */
+	--rhythm:   0.5rem;
+	--space-xs: calc(var(--rhythm) * 2);   /* 1rem */
+	--space-sm: calc(var(--rhythm) * 3);   /* 1.5rem */
+	--space-md: calc(var(--rhythm) * 5);   /* 2.5rem */
+	--space-lg: clamp(3rem, 6vw, 5rem);
+	--space-xl: clamp(5rem, 10vw, 9rem);
+
+	/* ── Layout ─────────────────────────────────────────────────────── */
+	--header-h: 88px;  /* runtime-overridden by animations.ts ResizeObserver */
+
+	--layout-max: 1400px;
+	--layout-px:  6vw;
+
+	/* ── Breakpoints (documentation only; CSS @media uses literals) ─── */
+	/* phone:   max-width 640px
+	   tablet:  641px – 1200px
+	   desktop: min-width 1201px */
+}

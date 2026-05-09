@@ -1,0 +1,74 @@
+---
+---
+
+<section class="hero" id="top">
+	<div class="hero__content">
+		<div class="hero__name-mask">
+			<h1 class="hero__name">Hey there!</h1>
+		</div>
+		<p class="hero__tagline">
+			Photographer &amp; software engineer — Boston,&nbsp;MA.
+		</p>
+	</div>
+</section>
+
+<style>
+	.hero {
+		min-height: 100svh;
+		display: flex;
+		/* safe center: falls back to flex-start when content exceeds box,
+		   so the hero is never clipped under the fixed header on short
+		   viewports (landscape phones, wrapping tablet header). */
+		align-items: safe center;
+		padding: calc(var(--header-h) + var(--space-md)) var(--layout-px) var(--space-xl);
+		max-width: var(--layout-max);
+		margin: 0 auto;
+		box-sizing: border-box;
+		scroll-margin-top: var(--header-h);
+	}
+
+	.hero__content {
+		max-width: 100%;
+	}
+
+	.hero__name-mask {
+		overflow: hidden;
+		padding-bottom: 0.12em; /* descender clearance so 'y' never clips */
+	}
+
+	h1.hero__name {
+		font-size: var(--type-display);
+		font-weight: 900;
+		line-height: var(--lh-tight);
+		letter-spacing: -0.02em;
+		margin: 0 0 var(--space-md);
+	}
+
+	:global(.char),
+	:global(.logo-char) {
+		display: inline-block;
+		vertical-align: top;
+		line-height: 1;
+		will-change: transform;
+	}
+
+	.hero__tagline {
+		font-size: var(--type-lede);
+		font-weight: 400;
+		color: rgb(var(--black));
+		margin: 0;
+		letter-spacing: 0.005em;
+		line-height: var(--lh-snug);
+		max-width: 32ch;
+	}
+
+	@media (max-width: 640px) {
+		h1.hero__name {
+			/* "Hey there!" at 900-weight would overflow the 375px content box
+			   at the --type-display floor (4rem). Scale with viewport so it
+			   stays on one line from ~320px up through the 640px breakpoint. */
+			font-size: clamp(2.75rem, 13vw, 4rem);
+			letter-spacing: -0.025em;
+		}
+	}
+</style>

@@ -1,6 +1,6 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
+// Tokens first so :root variables resolve before any rule consumes them.
+import '../styles/tokens.css';
 import '../styles/global.css';
 
 interface Props {
