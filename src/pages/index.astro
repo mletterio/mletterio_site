@@ -91,9 +91,12 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
         will-change: transform;
       }
 
-      main,
-      :global(footer) {
-        position: relative;
+      /* Stacking at root level (top → bottom):
+           header (z 100)  →  #smooth-wrapper (z 2)  →  .trail (z 1)
+         z-index on `main` / `footer` doesn't help here because
+         `#smooth-content`'s `will-change: transform` creates its own
+         stacking context, trapping their z-indices inside it. */
+      :global(#smooth-wrapper) {
         z-index: 2;
       }
     </style>

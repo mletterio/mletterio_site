@@ -20,6 +20,7 @@
 	--type-lede:    clamp(1.15rem, 1.6vw, 1.5rem);
 	--type-heading: clamp(2rem,    4.2vw, 3.6rem);
 	--type-display: clamp(4rem,    11vw,  8.4rem);
+	--type-intro:   clamp(1.4rem,  2.6vw, 2.25rem);
 
 	--lh-tight: 1.1;
 	--lh-snug:  1.25;

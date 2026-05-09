@@ -165,20 +165,18 @@ document.querySelectorAll<HTMLAnchorElement>('a[data-anchor]').forEach((a) => {
 	});
 });
 
-const heroNameEl = document.querySelector<HTMLElement>('h1.hero__name');
-const taglineEl = document.querySelector<HTMLElement>('.hero__tagline');
+const heroNameEl = document.querySelector<HTMLElement>('h1.hero__intro');
 const logoEl = headerEl?.querySelector<HTMLElement>('h2 a') ?? null;
 const navItems = Array.from(headerEl?.querySelectorAll<HTMLElement>('.nav-links a') ?? []);
 const navLinksEl = headerEl?.querySelector<HTMLElement>('.nav-links') ?? null;
 
-const runIntro = (logoChars: Element[], heroChars: Element[]) => {
+const runIntro = (logoChars: Element[], heroWords: Element[]) => {
 	// Pre-hide intro targets synchronously so there's no flash before the
 	// timeline's playhead reaches each tween (`.from()` inside a paused
 	// timeline has immediateRender:false by default).
 	if (logoChars.length) gsap.set(logoChars, { yPercent: 110, opacity: 0 });
 	if (navItems.length) gsap.set(navItems, { y: 12, opacity: 0 });
-	if (heroChars.length) gsap.set(heroChars, { yPercent: 110, opacity: 0 });
-	if (taglineEl) gsap.set(taglineEl, { y: 16, opacity: 0 });
+	if (heroWords.length) gsap.set(heroWords, { yPercent: 110, opacity: 0 });
 	if (navLinksEl) gsap.set(navLinksEl, { '--ledge-wipe': '100%' });
 
 	const master = gsap.timeline({
@@ -212,18 +210,12 @@ const runIntro = (logoChars: Element[], heroChars: Element[]) => {
 			ease: 'power3.out',
 		}, 'nav')
 		.addLabel('hero', 'nav-=0.1')
-		.to(heroChars, {
+		.to(heroWords, {
 			yPercent: 0,
 			opacity: 1,
-			stagger: 0.04,
-			duration: 0.9,
-		}, 'hero')
-		.to(taglineEl, {
-			y: 0,
-			opacity: 1,
-			duration: 0.7,
-			ease: 'power3.out',
-		}, 'hero+=0.3');
+			stagger: 0.025,
+			duration: 0.55,
+		}, 'hero');
 
 	// Mid-page reload: skip the intro so it doesn't play below the fold.
 	const scrolled = smoother ? smoother.scrollTop() : window.scrollY;
@@ -452,11 +444,18 @@ if (prefersReducedMotion) {
 	// until the web font is rendered, which would otherwise cause the
 	// intro to animate against pre-fallback layout.
 	document.fonts.ready.then(() => {
-		// SplitText replaces the hand-rolled splitChars/splitLogo helpers.
-		// Logo uses words+chars so each word gets its own clipping box;
-		// chars sliding from below don't bleed across lines on mobile.
+		// Hero: lines+words. Words rise on intro, lines collapse on scroll.
+		// `mask: 'lines'` wraps each line in overflow:hidden — cleans up
+		// descender bleed and gives the line-stagger collapse a clip box.
+		// Logo: words+chars so each word gets its own clipping box; chars
+		// sliding from below don't bleed across lines on mobile.
 		const heroSplit = heroNameEl
-			? SplitText.create(heroNameEl, { type: 'chars', charsClass: 'char' })
+			? SplitText.create(heroNameEl, {
+					type: 'lines,words',
+					linesClass: 'intro-line',
+					wordsClass: 'intro-word',
+					mask: 'lines',
+				})
 			: null;
 		const logoSplit = logoEl
 			? SplitText.create(logoEl, {
@@ -466,10 +465,10 @@ if (prefersReducedMotion) {
 				})
 			: null;
 
-		const heroChars = heroSplit?.chars ?? [];
+		const heroWords = heroSplit?.words ?? [];
 		const logoChars = logoSplit?.chars ?? [];
 
-		const master = runIntro(logoChars, heroChars);
+		const master = runIntro(logoChars, heroWords);
 		runCollapse(master, logoChars);
 		runRevealTriggers();
 	});
