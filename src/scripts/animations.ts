@@ -170,12 +170,21 @@ const logoEl = headerEl?.querySelector<HTMLElement>('h2 a') ?? null;
 const navItems = Array.from(headerEl?.querySelectorAll<HTMLElement>('.nav-links a') ?? []);
 const navLinksEl = headerEl?.querySelector<HTMLElement>('.nav-links') ?? null;
 
-const runIntro = (logoChars: Element[], heroWords: Element[]) => {
+const runIntro = (logoWords: Element[], heroWords: Element[]) => {
+	// Phone uses an opacity fade for nav-links (collapse path), desktop
+	// uses a slide. Mirror per breakpoint so the intro is the visual
+	// reverse of the scroll-up reveal.
+	const isPhoneAtIntro = window.matchMedia('(max-width: 640px)').matches;
+
 	// Pre-hide intro targets synchronously so there's no flash before the
 	// timeline's playhead reaches each tween (`.from()` inside a paused
 	// timeline has immediateRender:false by default).
-	if (logoChars.length) gsap.set(logoChars, { yPercent: 110, opacity: 0 });
-	if (navItems.length) gsap.set(navItems, { y: 12, opacity: 0 });
+	if (logoWords.length) gsap.set(logoWords, { yPercent: 110, opacity: 0 });
+	if (navItems.length) {
+		gsap.set(navItems, isPhoneAtIntro
+			? { opacity: 0 }
+			: { yPercent: -300, opacity: 1 });
+	}
 	if (heroWords.length) gsap.set(heroWords, { yPercent: 110, opacity: 0 });
 	if (navLinksEl) gsap.set(navLinksEl, { '--ledge-wipe': '100%' });
 
@@ -186,13 +195,13 @@ const runIntro = (logoChars: Element[], heroWords: Element[]) => {
 
 	master
 		.addLabel('open')
-		// Logo chars rise + ledge wipes in — concurrent. The ledge "wipes
-		// with" the wordmark per design intent.
-		.to(logoChars, {
+		// Wordmark words rise + ledge wipes in — concurrent. Same params
+		// as the hero sentence intro so the two reads as one motion.
+		.to(logoWords, {
 			yPercent: 0,
 			opacity: 1,
-			stagger: 0.035,
-			duration: 0.75,
+			stagger: 0.025,
+			duration: 0.55,
 		}, 'open')
 		.to(navLinksEl, {
 			'--ledge-wipe': '0%',
@@ -201,14 +210,12 @@ const runIntro = (logoChars: Element[], heroWords: Element[]) => {
 		}, 'open')
 		// Nav links emerge AFTER ledge + wordmark finish — sequential, no
 		// negative overlap. Reads as: ledge "wipes" the links into being.
+		// Animation is the reverse of the scroll-up collapse path.
 		.addLabel('nav', '>')
-		.to(navItems, {
-			y: 0,
-			opacity: 1,
-			stagger: 0.06,
-			duration: 0.55,
-			ease: 'power3.out',
-		}, 'nav')
+		.to(navItems, isPhoneAtIntro
+			? { opacity: 1, stagger: 0.06, duration: 0.55, ease: 'power3.out' }
+			: { yPercent: 0, stagger: 0.06, duration: 0.55, ease: 'power3.out' },
+			'nav')
 		.addLabel('hero', 'nav-=0.1')
 		.to(heroWords, {
 			yPercent: 0,
@@ -224,7 +231,7 @@ const runIntro = (logoChars: Element[], heroWords: Element[]) => {
 	return master;
 };
 
-const runCollapse = (master: gsap.core.Timeline, logoChars: Element[]) => {
+const runCollapse = (master: gsap.core.Timeline) => {
 	// matchMedia auto-reverts ScrollTriggers + tweens when conditions stop
 	// matching, so resizing across breakpoints rebuilds the collapse
 	// without leaking listeners or stale tweens.
@@ -241,7 +248,11 @@ const runCollapse = (master: gsap.core.Timeline, logoChars: Element[]) => {
 				isTablet: boolean;
 				isDesktop: boolean;
 			};
-			const rotMax = isPhone ? 10 : 18;
+
+			// Wordmark exit translates 1:1 with scroll. The trigger's
+			// `end` distance must match this so `ease: 'none'` yields
+			// scroll-position == translate-distance.
+			const wordmarkExit = headerEl?.offsetHeight ?? 88;
 
 			// Inside a scrubbed ScrollTrigger, tween durations act as
 			// PROPORTIONS of total scroll distance, not seconds. So the
@@ -276,23 +287,24 @@ const runCollapse = (master: gsap.core.Timeline, logoChars: Element[]) => {
 				}
 			}
 
-			// 2. Ledge wipes out + wordmark flies up — concurrent with
-			//    each other, sequential after nav items.
+			// 2. Ledge wipes out, sequential after nav items.
 			if (navLinksEl) {
 				collapse.to(navLinksEl, {
 					'--ledge-wipe': '100%',
 					duration: 0.3,
 				}, 0.35);
 			}
-			if (logoChars.length) {
-				collapse.to(logoChars, {
-					yPercent: -600,
-					rotation: () => gsap.utils.random(-rotMax, rotMax),
-					transformOrigin: '50% 100%',
-					stagger: { each: 0.03, from: 'end' },
-					duration: 0.55,
-					ease: 'power2.in',
-				}, 0.35);
+
+			// 3. Wordmark scrolls up with the page as a single block.
+			//    `ease: 'none'` + duration spanning the full timeline +
+			//    translate distance == trigger scroll budget gives a
+			//    visually 1:1 mapping with scroll position.
+			if (logoEl) {
+				collapse.to(logoEl, {
+					y: -wordmarkExit,
+					ease: 'none',
+					duration: 1,
+				}, 0);
 			}
 
 			const trigger = ScrollTrigger.create({
@@ -301,17 +313,17 @@ const runCollapse = (master: gsap.core.Timeline, logoChars: Element[]) => {
 				// top (header is fixed), so `top top+=X` would read as
 				// already past start on load and fire immediately.
 				start: () => `top+=${(headerEl?.offsetHeight ?? 88) * 0.3} top`,
-				end: () => `+=${(headerEl?.offsetHeight ?? 88) * 0.8}`,
-				// Numeric scrub layered over the smoother's own ease — feels
-				// inertial without being mushy. Lower on touch where the
-				// pin/scrub combo is more sensitive to stutter.
-				scrub: isPhone ? 0.3 : 0.6,
+				end: () => `+=${wordmarkExit}`,
+				// Higher scrub damping than before — the previous 0.3/0.6
+				// felt abrupt on scroll-up because the reveal-back rides
+				// the same range. More inertia softens both directions.
+				scrub: isPhone ? 0.6 : 1.0,
 				animation: collapse,
 				invalidateOnRefresh: true,
 				onUpdate: (self) => {
 					// If a scroll lands during the intro, jump the intro to
 					// the end so it doesn't fight the collapse on shared
-					// targets (logoChars, navLinksEl).
+					// targets (navLinksEl --ledge-wipe).
 					if (self.progress > 0 && master.isActive()) master.progress(1);
 				},
 			});
@@ -333,7 +345,7 @@ const runRevealTriggers = () => {
 		);
 
 		const tl = gsap.timeline({
-			scrollTrigger: { trigger: section, start: 'top 86%', once: true },
+			scrollTrigger: { trigger: section, start: 'top 70%', once: true },
 			defaults: { ease: 'power3.out' },
 		});
 
@@ -457,19 +469,25 @@ if (prefersReducedMotion) {
 					mask: 'lines',
 				})
 			: null;
+		// Split into lines+words+chars (chars retained so .logo-char still
+		// exists for measureCapTopY). mask:'lines' wraps each line in
+		// overflow:hidden — same clip strategy the hero uses, so words
+		// rising during intro stay hidden until they cross the line top.
 		const logoSplit = logoEl
 			? SplitText.create(logoEl, {
-					type: 'words,chars',
-					wordsClass: 'logo-word',
+					type: 'lines,words,chars',
+					linesClass: 'logo-line intro-line',
+					wordsClass: 'logo-word intro-word',
 					charsClass: 'logo-char',
+					mask: 'lines',
 				})
 			: null;
 
 		const heroWords = heroSplit?.words ?? [];
-		const logoChars = logoSplit?.chars ?? [];
+		const logoWords = logoSplit?.words ?? [];
 
-		const master = runIntro(logoChars, heroWords);
-		runCollapse(master, logoChars);
+		const master = runIntro(logoWords, heroWords);
+		runCollapse(master);
 		runRevealTriggers();
 	});
 

@@ -30,17 +30,16 @@ import { SITE_TITLE } from '../consts';
 		display: block;
 	}
 
-	/* Per-word mask — clip-path clips chars rising from below during the
-	   intro (bottom edge), but leaves the top OPEN so chars flying up
-	   during the scroll collapse aren't cut off by the header itself —
-	   they exit at the viewport top instead. */
+	/* Layout for SplitText word boxes. The line-level overflow:hidden
+	   added by SplitText's mask:'lines' handles intro clipping; the
+	   collapse exit is a single block translate on the parent <a>, so
+	   no per-word clip-path is needed. */
 	:global(.logo-word) {
 		display: inline-block;
 		padding-bottom: 0.12em;
 		line-height: 1;
 		vertical-align: top;
 		white-space: nowrap;
-		clip-path: inset(-9999px 0 0 0);
 	}
 
 	nav {
