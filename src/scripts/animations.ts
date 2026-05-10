@@ -169,6 +169,9 @@ const heroNameEl = document.querySelector<HTMLElement>('h1.hero__intro');
 const logoEl = headerEl?.querySelector<HTMLElement>('h2 a') ?? null;
 const navItems = Array.from(headerEl?.querySelectorAll<HTMLElement>('.nav-links a') ?? []);
 const navLinksEl = headerEl?.querySelector<HTMLElement>('.nav-links') ?? null;
+// --ledge-wipe lives on <nav> so both ledges (.nav-links::before for
+// desktop/tablet, .ledge-top for mobile) inherit the same value.
+const navEl = headerEl?.querySelector<HTMLElement>('nav') ?? null;
 
 const runIntro = (logoWords: Element[], heroWords: Element[]) => {
 	// Phone uses an opacity fade for nav-links (collapse path), desktop
@@ -193,7 +196,7 @@ const runIntro = (logoWords: Element[], heroWords: Element[]) => {
 			: { yPercent: -300, opacity: 1 });
 	}
 	if (heroWords.length) gsap.set(heroWords, { yPercent: 110, opacity: 0 });
-	if (navLinksEl) gsap.set(navLinksEl, { '--ledge-wipe': '100%' });
+	if (navEl) gsap.set(navEl, { '--ledge-wipe': '100%' });
 
 	const master = gsap.timeline({
 		defaults: { ease: 'expo.out', duration: 0.7 },
@@ -204,7 +207,7 @@ const runIntro = (logoWords: Element[], heroWords: Element[]) => {
 		.addLabel('open')
 		// Reverse of the collapse: ledge wipes in FIRST (alone), so the
 		// ledge is the leading element on a fresh page load.
-		.to(navLinksEl, {
+		.to(navEl, {
 			'--ledge-wipe': '0%',
 			duration: 0.55,
 			ease: 'power2.inOut',
@@ -285,6 +288,16 @@ const runCollapse = (master: gsap.core.Timeline) => {
 						duration: 0.35,
 						stagger: 0.015,
 					}, 0);
+				} else if (isPhone) {
+					// Slide up + fade so the links visually converge
+					// toward the top ledge instead of dissolving in
+					// place. Matches the wordmark's upward exit.
+					collapse.to(navItems, {
+						yPercent: -150,
+						opacity: 0,
+						duration: 0.35,
+						stagger: 0.015,
+					}, 0);
 				} else {
 					collapse.to(navItems, {
 						opacity: 0,
@@ -306,7 +319,7 @@ const runCollapse = (master: gsap.core.Timeline) => {
 			//    the ledge wipe the leading element on a reverse
 			//    scroll (it's the first thing the playhead re-enters
 			//    when scrolling up from the collapsed end).
-			if (navLinksEl) {
+			if (navEl) {
 				// fromTo (not to) so the start value is pinned at 0%
 				// regardless of when the tween first records its
 				// pre-state. The intro tween also writes --ledge-wipe,
@@ -314,7 +327,7 @@ const runCollapse = (master: gsap.core.Timeline) => {
 				// timeline scrubbed past first — making reverse-scroll
 				// snap instead of unwiping.
 				collapse.fromTo(
-					navLinksEl,
+					navEl,
 					{ '--ledge-wipe': '0%' },
 					{
 						'--ledge-wipe': '100%',
@@ -482,7 +495,7 @@ const runCursorTrail = () => {
 };
 
 if (prefersReducedMotion) {
-	if (navLinksEl) navLinksEl.style.setProperty('--ledge-wipe', '0%');
+	if (navEl) navEl.style.setProperty('--ledge-wipe', '0%');
 } else {
 	// Wait for fonts before splitting — char widths/positions are unstable
 	// until the web font is rendered, which would otherwise cause the

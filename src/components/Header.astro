@@ -5,6 +5,7 @@ import { SITE_TITLE } from '../consts';
 
 <header>
 	<nav>
+		<span class="ledge-top" aria-hidden="true"></span>
 		<h2><a href="/">{SITE_TITLE}</a></h2>
 		<div class="nav-links">
 			<HeaderLink href="https://www.linkedin.com/in/michael-letterio" target="_blank" rel="noopener noreferrer">LinkedIn&nbsp;→</HeaderLink>
@@ -56,6 +57,18 @@ import { SITE_TITLE } from '../consts';
 		max-width: var(--layout-max);
 		margin: 0 auto;
 		box-sizing: border-box;
+		/* Hosted on <nav> so both the desktop ledge (.nav-links::before)
+		   and the mobile ledge (.ledge-top) inherit it. Start fully
+		   wiped (hidden) so a refresh doesn't flash the ledge before
+		   the intro JS runs. */
+		--ledge-wipe: 100%;
+	}
+
+	/* Mobile-only ledge anchored to nav top. Hidden by default — the
+	   phone breakpoint promotes it to display:block. It functions as
+	   the "scroll-locked cutoff" the desktop ledge plays in row layout. */
+	.ledge-top {
+		display: none;
 	}
 
 	.nav-links {
@@ -76,11 +89,6 @@ import { SITE_TITLE } from '../consts';
 		box-sizing: border-box;
 		overflow: hidden;
 		position: relative;
-		/* Start fully wiped (hidden) so a refresh doesn't flash the
-		   ledge before the intro JS runs. The intro animates this to
-		   0% (visible) as its first beat. The reduced-motion path in
-		   animations.ts forces it back to 0% immediately. */
-		--ledge-wipe: 100%;
 	}
 
 	.nav-links::before {
@@ -130,12 +138,42 @@ import { SITE_TITLE } from '../consts';
 		h2 {
 			font-size: 1.75em;
 			line-height: 1;
+			/* Visual breathing room from the ledge lives INSIDE h2 (as
+			   padding) rather than as a nav gap, so h2's overflow clip
+			   boundary sits at the ledge line itself. With nav gap > 0
+			   the clip would land below the ledge and the wordmark would
+			   appear to vanish into a gap instead of into the ledge. */
+			padding-top: 0.5em;
+			/* Clip the wordmark at h2's top edge (= just under the ledge)
+			   so the collapse translate appears to disappear INTO the
+			   ledge instead of past the viewport top. */
+			overflow: hidden;
 		}
 
 		/* Stack the logo words vertically so "MICHAEL" and "LETTERIO" each
 		   get their own line instead of overflowing the content box. */
 		:global(.logo-word) {
 			display: block;
+		}
+
+		nav {
+			gap: 0;
+		}
+
+		/* Promote the top ledge: a 2px line at nav top, wipes right→left
+		   driven by --ledge-wipe inherited from <nav>. */
+		.ledge-top {
+			display: block;
+			width: 100%;
+			height: 2px;
+			background: var(--gray-dark);
+			clip-path: inset(0 var(--ledge-wipe) 0 0);
+		}
+
+		/* Mobile uses .ledge-top as the cutoff; demote the .nav-links
+		   divider ledge so the wordmark/links don't read as separated. */
+		.nav-links::before {
+			display: none;
 		}
 
 		.nav-links {
@@ -146,10 +184,6 @@ import { SITE_TITLE } from '../consts';
 			align-items: stretch;
 			width: 100%;
 			font-size: 1.15em;
-		}
-
-		.nav-links::before {
-			clip-path: inset(0 var(--ledge-wipe) 0 0);
 		}
 
 		.nav-links a {
