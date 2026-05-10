@@ -52,7 +52,7 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-	background: #fcfbf8;
+	background: var(--page-bg);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--black));
