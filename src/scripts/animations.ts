@@ -179,6 +179,13 @@ const runIntro = (logoWords: Element[], heroWords: Element[]) => {
 	// Pre-hide intro targets synchronously so there's no flash before the
 	// timeline's playhead reaches each tween (`.from()` inside a paused
 	// timeline has immediateRender:false by default).
+	// Wordmark words must pre-hide BELOW their line (yPercent: +110), not
+	// above. Rising-from-below keeps the chars' rendered y BELOW the line
+	// during intro, which preserves measureCapTopY's accuracy if the
+	// ResizeObserver triggers a resync mid-intro. A pre-hide ABOVE the
+	// line (-110) caused the cap-top measurement to read the
+	// transformed position and inflate --ledge-offset to ~66px (ledge
+	// floated way above the wordmark).
 	if (logoWords.length) gsap.set(logoWords, { yPercent: 110, opacity: 0 });
 	if (navItems.length) {
 		gsap.set(navItems, isPhoneAtIntro
@@ -195,28 +202,28 @@ const runIntro = (logoWords: Element[], heroWords: Element[]) => {
 
 	master
 		.addLabel('open')
-		// Wordmark words rise + ledge wipes in — concurrent. Same params
-		// as the hero sentence intro so the two reads as one motion.
-		.to(logoWords, {
-			yPercent: 0,
-			opacity: 1,
-			stagger: 0.025,
-			duration: 0.55,
-		}, 'open')
+		// Reverse of the collapse: ledge wipes in FIRST (alone), so the
+		// ledge is the leading element on a fresh page load.
 		.to(navLinksEl, {
 			'--ledge-wipe': '0%',
 			duration: 0.55,
 			ease: 'power2.inOut',
 		}, 'open')
-		// Nav links emerge AFTER ledge + wordmark finish — sequential, no
-		// negative overlap. Reads as: ledge "wipes" the links into being.
-		// Animation is the reverse of the scroll-up collapse path.
-		.addLabel('nav', '>')
+		// Then text drops from the ledge: wordmark words fall down into
+		// place + nav links drop into place. Concurrent with each other,
+		// sequential after the ledge wipe.
+		.addLabel('drop', '>')
+		.to(logoWords, {
+			yPercent: 0,
+			opacity: 1,
+			stagger: 0.025,
+			duration: 0.55,
+		}, 'drop')
 		.to(navItems, isPhoneAtIntro
 			? { opacity: 1, stagger: 0.06, duration: 0.55, ease: 'power3.out' }
 			: { yPercent: 0, stagger: 0.06, duration: 0.55, ease: 'power3.out' },
-			'nav')
-		.addLabel('hero', 'nav-=0.1')
+			'drop')
+		.addLabel('hero', 'drop+=0.25')
 		.to(heroWords, {
 			yPercent: 0,
 			opacity: 1,
@@ -255,22 +262,22 @@ const runCollapse = (master: gsap.core.Timeline) => {
 			const wordmarkExit = headerEl?.offsetHeight ?? 88;
 
 			// Inside a scrubbed ScrollTrigger, tween durations act as
-			// PROPORTIONS of total scroll distance, not seconds. So the
-			// 0.35 / 0.55 below describe how the scroll budget is split.
+			// PROPORTIONS of total scroll distance, not seconds. All
+			// three tweens start at position 0 (concurrent with the
+			// first scroll pixel) — durations control how much of the
+			// scroll budget each occupies.
 			const collapse = gsap.timeline({
 				defaults: { ease: 'power2.inOut' },
 			});
 
-			// 1. Nav links disappear into the ledge first.
-			//    Desktop: slide up; overflow:hidden on .nav-links clips
-			//    them, so no opacity tween — the wipe stays the focal
-			//    action. yPercent is relative to the link's own height,
-			//    so the link has to travel its-top → ledge-line, which
-			//    is roughly the .nav-links padding-top plus its own
-			//    height. -300% gives margin so the links are fully
-			//    above the ledge before the wipe starts.
-			//    Phone: links don't move, so fade is the only way to
-			//    clear them.
+			// 1. Nav links slide up into the ledge. Quick (0.35 of the
+			//    budget) — links are clipped by `.nav-links {
+			//    overflow: hidden }` at the ledge line as they slide,
+			//    so they're visually gone well before the tween end.
+			//    Desktop slides the link box (yPercent -300 gives
+			//    margin so the link is fully above the ledge before
+			//    the slide ends); phone fades because the grid layout
+			//    has no vertical room to slide into.
 			if (navItems.length) {
 				if (isDesktop) {
 					collapse.to(navItems, {
@@ -287,12 +294,35 @@ const runCollapse = (master: gsap.core.Timeline) => {
 				}
 			}
 
-			// 2. Ledge wipes out, sequential after nav items.
+			// 2. Ledge wipes out concurrently with the link slide, but
+			//    over the FULL scroll budget (duration 1) — so the
+			//    wipe is slower than the slide. Because links are
+			//    right-justified and the desktop wipe clips from the
+			//    left, the wipe boundary doesn't reach a link's column
+			//    until well after the link has slid off; the ledge
+			//    "stays under" the link until the link is gone. Phone
+			//    wipes from the right but the grid links fade in place
+			//    — same invariant holds. Spanning to t=1.0 also makes
+			//    the ledge wipe the leading element on a reverse
+			//    scroll (it's the first thing the playhead re-enters
+			//    when scrolling up from the collapsed end).
 			if (navLinksEl) {
-				collapse.to(navLinksEl, {
-					'--ledge-wipe': '100%',
-					duration: 0.3,
-				}, 0.35);
+				// fromTo (not to) so the start value is pinned at 0%
+				// regardless of when the tween first records its
+				// pre-state. The intro tween also writes --ledge-wipe,
+				// so a `to` here would inherit whatever value the
+				// timeline scrubbed past first — making reverse-scroll
+				// snap instead of unwiping.
+				collapse.fromTo(
+					navLinksEl,
+					{ '--ledge-wipe': '0%' },
+					{
+						'--ledge-wipe': '100%',
+						duration: 1,
+						immediateRender: false,
+					},
+					0
+				);
 			}
 
 			// 3. Wordmark scrolls up with the page as a single block.
@@ -309,10 +339,12 @@ const runCollapse = (master: gsap.core.Timeline) => {
 
 			const trigger = ScrollTrigger.create({
 				trigger: 'main',
-				// `top+=X top` (not `top top+=X`) — main starts at viewport
-				// top (header is fixed), so `top top+=X` would read as
-				// already past start on load and fire immediately.
-				start: () => `top+=${(headerEl?.offsetHeight ?? 88) * 0.3} top`,
+				// "Start triggering with the scroll": the collapse runs
+				// from the very first scroll pixel. Earlier this was
+				// `top+=headerHeight*0.3 top` (~26px buffer), but the
+				// user wants the link wipe-into-ledge to begin in
+				// lockstep with the scroll wheel, not after a dead zone.
+				start: () => 'top top',
 				end: () => `+=${wordmarkExit}`,
 				// Higher scrub damping than before — the previous 0.3/0.6
 				// felt abrupt on scroll-up because the reveal-back rides

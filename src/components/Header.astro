@@ -76,7 +76,11 @@ import { SITE_TITLE } from '../consts';
 		box-sizing: border-box;
 		overflow: hidden;
 		position: relative;
-		--ledge-wipe: 0%;
+		/* Start fully wiped (hidden) so a refresh doesn't flash the
+		   ledge before the intro JS runs. The intro animates this to
+		   0% (visible) as its first beat. The reduced-motion path in
+		   animations.ts forces it back to 0% immediately. */
+		--ledge-wipe: 100%;
 	}
 
 	.nav-links::before {
